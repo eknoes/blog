@@ -1,0 +1,137 @@
+---
+title: "Comparison of COVID19 Tracking of DP3T and Apple/Google"
+date: 2020-04-11T14:01:40+02:00
+katex: true
+---
+
+In the last days I followed the <a href="https://github.com/DP-3T/documents">DP-3T</a> initiative, which proposes a "Decentralized Privacy-Preserving Proximity Tracing" to fight COVID-19.
+Yesterday, <a href="https://blog.google/inside-google/company-announcements/apple-and-google-partner-covid-19-contact-tracing-technology/">Apple and Google announced</a> their unusal collaboration and published their <a href="https://blog.google/documents/56/Contact_Tracing_-_Cryptography_Specification.pdf">cryptographic specification</a>.
+
+As I wondered how privacy-preserving their protocol is compared to the approach of DP-3T I created the following comparison.
+<!--more-->
+<p>In the last days I followed the <a href="https://github.com/DP-3T/documents">DP-3T</a> initiative, which proposes a "Decentralized Privacy-Preserving Proximity Tracing" to fight COVID-19.
+Yesterday, <a href="https://blog.google/inside-google/company-announcements/apple-and-google-partner-covid-19-contact-tracing-technology/">Apple and Google announced</a> their unusal collaboration and published their <a href="https://blog.google/documents/56/Contact_Tracing_-_Cryptography_Specification.pdf">cryptographic specification</a>.</p>
+
+<p>As I wondered how privacy-preserving their protocol is compared to the approach of DP-3T I created the following comparison.</p>
+<p><i>I created this to get a better overview, if you find errors or have suggestions feel free to open an issue or a pull request in this <a href="https://github.com/eknoes/blog">repo</a>. Furthermore, its not finished yet. This is just the protocol, I also want to compare possible attacks or privacy issues.</i></p>
+<style>
+.column {
+  float: left;
+  width: 50%;
+  padding-right: 1em;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media screen and (max-width: 85em) {
+  .column {
+    width: 100%;
+  }
+}
+
+.content, .container {
+    max-width: unset;
+}
+
+.katex {
+    font-size: 16px;
+}
+
+.post {
+    font-size: 16px;
+}
+
+</style>
+<h3>Source</h3>
+<div class="row">
+    <div class="column"><h4>DP-3T</h4>
+        <p>I used the version of the whitepaper available on <a href="https://github.com/DP-3T/documents/blob/76fdc4e8210c6c9f75ed1e381282d6f8d4655745/DP3T%20White%20Paper.pdf">2020-04-11</a>. I focus on variant 1.</p>
+    </div>
+    <div class="column"><h4>Apple/Google</h4>
+        <p>I used the version published on <a href="https://blog.google/documents/56/Contact_Tracing_-_Cryptography_Specification.pdf">2020-04-10</a>.</p>
+    </div>
+</div>
+<h3>Notation</h3>
+<p>For notation similarity, I use the notation of DP-3T, so \(t\) denotes the day and \(n\) denotes an interval of the day. The Google/Apple approach uses slightly more complex notation, but I decided to simplify that for this comparison.</p>
+<h3>Keys</h3>
+<div class="row">
+    <div class="column"><h4>DP-3T</h4>
+        <p>This design uses 2 different types of keys:</p>
+        <ul>
+            <li>Secret Key \(SK_t\)</li>
+            <li>16-byte ephemeral ids \(EphID_{t,j}\) <i>(broadcasted)</i></li> 
+        </ul>
+        <h5>Key Derivation</h5>
+        $$SK_t \leftarrow H( SK_{t-1} )$$
+        <p>The initial \(SK_t\) is generated at random, afterwards its derived of the previous \(SK_{t-1}\).</p>
+    
+        $$EphID_{t,1}~||~\dots~||~EphID_{t,n}~\leftarrow~PRG(~HMAC(~SK_t, "\text{broadcast key}"~)~)$$
+        <p>A set of ephemeral IDs is generated out of the current \(SK_t\). Each is broadcasted in a random order for \(\frac{24 * 60}{n}\) minutes.</p>
+    </div>
+    <div class="column"><h4>Apple/Google</h4>
+        <p>This design uses 3 different types of keys:</p>
+        <ul>
+            <li>32-byte tracing key \(tk\)</li>
+            <li>16-byte daily tracing key \(dtk_t\)</li>
+            <li>16-byte Rolling Proximity Identifier \(RPI_{t,n}\) <i>(broadcasted)</i></li>
+        </ul>
+        <h5>Key Derivation</h5>
+        $$tk \leftarrow CRNG(~32~)$$
+        <p>The tracing key \(tk\) is generated at random</p>
+        $$dtk_t \leftarrow HKDF(~tk,~NULL,~"CT-DTK"||t,~16)$$
+        <p>The Daily tracing key is derived daily of \(tk\) and \(t\).</p>
+        $$RPI_{t,n} \leftarrow \text{TRUNCATE}(~HMAC(~dtk_t,~"CT-RPI" || n~),~16~)$$
+        <p>Each time the MAC address changes, a new \(RPI_{t,n}\) is generated. Here, \(n\) is incremented on each change. According to the specification, this happens every 10 minutes, so 144 keys are generated each day.</p>
+    </div>
+</div>
+<h3>Broadcasting keys</h3>
+<p>Both solutions broadcast a key for proximity tracing as Bluetooth Low Energy (BLE) beacons which is changing on a certain interval. The device furthermore stores each received beacons. After a user got infected, it uploads data to a central server which can be fetched by all users to check, whether they were in its proximity.</p>
+<h3>Matching Values</h3>
+<div class="row">
+    
+    <div class="column"><h4>DP-3T</h4>
+        <p>Each user stores:</p>
+        <ul>
+            <li>Observed \(EphID\)</li>
+            <li>Estimated proximity</li>
+            <li>Duration</li>
+            <li>Coarse time indication</li>
+        </ul>
+        <p>After infection, a user uploads the pair \(SK_t, t\) for the estimated first day of being contagious.</p>
+        <p>Other users fetch this information and generate all related \(EphID\)s to compare them to the ones they discoverd and find out whether they have been in proximity.</p>
+    </div>
+
+    <div class="column"><h4>Apple/Google</h4>
+        <p>Each user stores:</p>
+        <ul>
+            <li>Observed \(RPI_{t,n}\)</li>
+            <li>Time window \(n\)</li>
+        </ul>
+        <p>After infection, a user uploads their set of relevant \(dtk_t, t\) pairs from the estimated first day of being contagious.</p>
+        <p>Other users fetch this information and generate all related \(RPI_{t,n}\) to compare them to the ones they discovered and find out whether they have been in proximity.</p>
+    </div>
+</div>
+<h3>After reporting</h3>
+<div class="row">
+    <div class="column"><h4>DP-3T</h4>
+        <p>After reporting its \(SK_t, t\), the user picks a new random key \(SK_t\). This happens, because one can link \(SK_t\) and \(SK_{t+1}\) of the same user as \(SK_{t+1} = H(SK_t)\).</p>
+    </div>
+    <div class="column"><h4>Apple/Google</h4>
+        <p>Nothing changes, as \(dtk_t\) and \(dtk_{t+1}\) are unlinkable.</p>
+    </div>
+</div>
+
+<h2>Similarities & Differences</h3>
+<p>The overall protocol is quite similar. The keys can be mapped like that: 
+<ul>
+    <li>\(SK_0 \Leftrightarrow tk\)</li>
+    <li>\(SK_t \Leftrightarrow dtk_t\)</li>
+    <li>\(EphID_{t,n} \Leftrightarrow RPI_{t,n}\)</li>
+</ul>
+<p>One important difference is, that in the DP-3T protocol the \(SK_t\) keys are derived from the predecessor, so it must be change after publication.</p>
+<p><i><a href="https://github.com/eknoes/blog">tbc...</a></i></p>
