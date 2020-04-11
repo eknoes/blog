@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>security on Eknoes Blog</title>
+    <link>https://eknoes.de/tags/security/</link>
+    <description>Recent content in security on Eknoes Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 08 Jul 2017 09:00:12 +0100</lastBuildDate>
+    
+	<atom:link href="https://eknoes.de/tags/security/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Deobfuscating Wordpress Malware</title>
+      <link>https://eknoes.de/posts/2017-07-08-deobfuscating-wordpress-malware/</link>
+      <pubDate>Sat, 08 Jul 2017 09:00:12 +0100</pubDate>
+      
+      <guid>https://eknoes.de/posts/2017-07-08-deobfuscating-wordpress-malware/</guid>
+      <description>&lt;p&gt;While browsing a friends website, I recognized malicious popups that opened up.
+It was hard to reproduce, because they showed up quite rarely and my friend never noticed them.
+Fortunately, I could convince her to have a look into her website by myself so I could analyze it and try to gain security.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
