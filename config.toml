@@ -12,8 +12,9 @@ theme = "hyde"
 
 [params]
   description = "Graduate CS student with focus on Privacy & Security topics"
-  themeColor = "theme-base-0c"
   copyright = " "
+  layoutReverse = true
+  themeColor = "theme-base-0d"
 
 [markup]
   [markup.highlight]
