@@ -60,7 +60,7 @@ So I wanted to implement different languages, with one of them being just plain 
 Furthermore, my friend and I are an open source and open data advocates, so we liked to have a valuable project with lots of users.
 Finally, I had a great example, why open data and also open source is important and I had the feeling that I am contributing to society.
 
-### Being the number one source for relevant health information may lead to unhealthy behavior
+### Being the number one source for relevant health information leads to unhealthy behavior
 Our project filled an important gap: With the "Bundesnotbremse" (aka. Federal Emergency Brake) the current rules in a city were deduced from the current case number.
 But besides us, there was no project informing the citizens automatically of their local numbers.
 I was contacted by some furniture store chains to adapt the bot, so that they could use it in their staff chat groups to know whether they can or can not open their shop.
